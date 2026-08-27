@@ -1,0 +1,11 @@
+{
+  "name": "cursor-flutter-rules",
+  "displayName": "Flutter Cursor Rules",
+  "version": "1.0.0",
+  "description": "Reusable Dart/Flutter agent rules: feature-first layout, Riverpod, Dart 3.13 primary constructors, i18n, Figma-to-code, and git commits.",
+  "author": {
+    "name": "powerfulseed1998"
+  },
+  "repository": "https://github.com/powerfulseed1998/cursor-flutter-rules",
+  "keywords": ["flutter", "dart", "cursor", "rules", "riverpod"]
+}
