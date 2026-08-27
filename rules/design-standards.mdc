@@ -1,0 +1,35 @@
+---
+description: 按 Figma 实现页面时，先经 MCP 读取设计信息；资源须下载入库；布局适配多屏并映射 Auto Layout；实现后校验视觉与交互状态。
+alwaysApply: true
+---
+
+# 设计规范
+
+收到「按 Figma 实现 / 还原页面」等请求时，必须先通过 Figma MCP 读取结构化设计信息，再写代码。
+
+## 实现前读取
+
+- 确认目标 frame / section / node，避免做错页面
+- 链接无 `node-id` 时，先用 MCP 查看文件结构，再定位最可能的目标 frame
+- 收集：结构、层级、文案、字体、颜色、间距、圆角、阴影、边框、Auto Layout、约束、组件变体与资源
+- 设计稿不清或矛盾时，优先遵循现有项目风格，并在最终回复中说明假设
+
+## 资源
+
+- 经 Figma MCP 下载到项目资源目录；禁止直接引用 Figma 临时 CDN 链接
+- 新增资源后必须更新 `pubspec.yaml` 的 `assets`
+- 图标优先 SVG（项目已支持 `flutter_svg` 时）；必要时再用 PNG
+- 位图按原生倍率导出（如 `exportAsync({ format: 'PNG', constraint: { type: 'SCALE', value: 3 } })`），禁止本地放大；PNG 默认 3x
+- 禁止在 Dart 中手写复刻 Figma 的 SVG path
+
+## 布局与还原
+
+- 适配多屏幕尺寸，禁止按单个 Figma frame 尺寸硬写
+- 重复 UI 应抽取；通用控件优先复用或抽公共组件
+- Auto Layout 优先映射为 `Row` / `Column` / `Flex` / `Wrap` / `Padding` / `Expanded` / `Flexible`
+- 无法完全用 Flutter 还原时，暂停操作并说明
+
+## 交互与校验
+
+- 实现后检查结构、间距、字号、颜色、资源、尺寸溢出
+- 实现设计中的按钮 / 选中 / 禁用 / 加载等状态
