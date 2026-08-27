@@ -1,0 +1,72 @@
+---
+description: 状态管理使用 flutter_riverpod 与 riverpod_generator。业务状态走 Provider；需要 StatefulWidget 时改用 Riverpod 内置 Widget；仅极简局部 UI 可用 setState。
+alwaysApply: true
+---
+
+# 状态管理
+
+使用 **flutter_riverpod** 管理状态，Provider 用 **riverpod_generator**（`@riverpod` / `@Riverpod`）声明，不要手写 `Provider` / `StateProvider` / `StateNotifierProvider` / `ChangeNotifierProvider` / `FutureProvider`。
+
+## Widget 选型
+
+需要 `StatefulWidget` 的地方，改用 Riverpod 内置 Widget：
+
+| 场景 | 使用 |
+| --- | --- |
+| 读取 Provider、无本地生命周期 | `ConsumerWidget` |
+| 需要 `TextEditingController`、`AnimationController` 等本地生命周期 | `ConsumerStatefulWidget` + `ConsumerState` |
+| 仅子树一小段需要 `ref` | `Consumer` |
+| 无状态、也不读 Provider | `StatelessWidget` |
+
+禁止新建裸 `StatefulWidget`。`createState` 必须返回 `ConsumerState`。
+
+## 何时用 setState
+
+仅当状态 **只存在于当前 Widget、不离开本组件、也不代表业务数据** 时，可在 `ConsumerState` 里用 `setState`，例如：输入框焦点、动画进度、纯视觉的展开/收起。
+
+下列情况必须用 Provider，禁止 `setState`：选中日期、列表与筛选、登录态、设置项、异步加载/错误、跨 Widget 或跨页面共享的数据。
+
+## Provider 声明
+
+放在 `features/<feature>/providers/`（跨 feature 则 `shared/providers/`）。源文件 `part 'xxx.g.dart';`，生成文件就近同目录，不要手改。
+
+```dart
+import 'package:riverpod_annotation/riverpod_annotation.dart';
+
+part 'counter.g.dart';
+
+// 派生/依赖注入：函数式
+@riverpod
+int remainingCount(Ref ref) {
+  return ref.watch(goalProvider) - ref.watch(usedProvider);
+}
+
+// 可变状态：Notifier
+@riverpod
+class Counter extends _$Counter {
+  @override
+  int build() => 0;
+
+  void increment() => state++;
+}
+
+// 异步：返回 Future / Stream，或 Notifier 的 build 返回 Future
+@riverpod
+Future<Profile> profile(Ref ref) async {
+  return ref.watch(apiRepositoryProvider).fetchProfile();
+}
+
+// 需要常驻时用 @Riverpod(keepAlive: true)
+```
+
+带参数即 family，写在函数/Notifier 的 `build` 参数上，不要手写 `Family`。
+
+新增或修改 Provider 后运行 `build_runner`。UI 通过 `xxxProvider` 访问，变更状态走 Notifier 方法，不要在 Widget 里直接 `state =`。
+
+## 读写约定
+
+- `build` 中用 `ref.watch`
+- 点击、提交等回调里用 `ref.read` / `ref.read(xxxProvider.notifier)`
+- 一次性副作用（SnackBar、导航）用 `ref.listen`
+- 异步结果用 `AsyncValue`（`when` / `whenOrNull` 等），不要在 Widget 里裸 `try/catch` 替代
+- 不要在回调里 `ref.watch`，不要在 `build` 里 `ref.read` 再拿会变的业务数据
