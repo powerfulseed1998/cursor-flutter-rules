@@ -1,0 +1,66 @@
+---
+description: Dart/Flutter 类使用 Dart 3.13 主构造函数：在类头声明字段与构造函数，避免 class 体内重复写字段和 this.x。
+alwaysApply: true
+---
+
+# Dart 主构造函数
+
+编写或改写 Dart `class` / `enum` / `mixin class` / `extension type` 时，使用 Dart 3.13 **主构造函数**（primary constructors）。在类头声明字段与主构造函数，不要再写「字段 + `ClassName(this.x)`」的旧写法。
+
+## 基本写法
+
+`var` / `final` 参数会隐式生成实例字段。无类体时用 `;`，不要写空的 `{}`。
+
+```dart
+// ❌ 旧写法
+class Point {
+  int x;
+  int y;
+  Point(this.x, this.y);
+}
+
+// ✅ 主构造函数
+class Point(var int x, var int y);
+```
+
+不可变字段用 `final`（Widget、Model 默认如此）。需要 `const` 时，把 `const` 写在 `class` 之前：
+
+```dart
+class const ItemCard({
+  super.key,
+  required final String title,
+  final int count = 0,
+}) extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) { /* ... */ }
+}
+```
+
+转发父类参数用 `super.xxx`：
+
+```dart
+class Person(final String name, final int age);
+class Employee(super.name, super.age, final String role) extends Person;
+```
+
+## 初始化与额外构造
+
+需要断言、初始化列表或构造函数体时，在类体内用 `this`：
+
+```dart
+class Point(var int x, var int y) {
+  this : assert(x >= 0 && y >= 0) {
+    // ...
+  }
+}
+```
+
+`const` 主构造函数不能有 `{ ... }` 函数体，只能用 `this : ...;`。
+
+类体内其它构造函数不要重复类名，用 `new` / `new name` / `factory name`。已有主构造函数时，体内只能再写 **redirecting** 的 generative 构造函数，或 factory。
+
+## 不要用主构造函数的情况
+
+- 生成代码（`*.g.dart`、`*.freezed.dart` 等）不要手改
+- 需要多个非 redirecting 的 generative 构造函数时，改用类体内的 `new` / `factory`
+- 抽象类、无状态字段且无构造需求的类，保持原样即可
