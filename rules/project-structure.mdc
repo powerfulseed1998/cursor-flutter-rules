@@ -1,0 +1,76 @@
+---
+description: Feature-first 目录组织。lib/ 顶层优先使用 features、core、shared、routes、i18n、assets；feature 内部按需使用 constants、providers、models、repositories、screens、widgets；shared 内部按需使用 providers、widgets。
+alwaysApply: true
+---
+
+# Project Structure
+
+源码根目录为 `lib/`。采用 **feature-first**：按业务功能拆分模块，不以技术分层作为顶层目录。
+
+## 优先的顶层目录
+
+`lib/` 下业务源码优先按以下同级目录组织。无法归入现有目录时，才新增其他顶层目录：
+
+```
+lib/
+  features/   # 按业务功能划分的独立模块
+  core/       # 应用级基础设施（与具体业务无关）
+  shared/     # 跨 feature 复用的代码
+  routes/     # 路由定义与导航
+  i18n/       # 国际化文案、生成代码与语言切换
+  assets/     # 静态资源
+  main.dart
+```
+
+新增代码优先落入上表某一目录。现有目录无法合理承载时，再新增顶层目录，并明确其职责。生成代码就近放在来源旁，不要单独开顶层 `gen/`。
+
+## 放置规则
+
+- 可独立成业务模块的代码 → `features/<feature_name>/`
+- 仅基础设施、与具体 feature 无关 → `core/`
+- 被 2 个及以上 feature 复用 → `shared/`
+- 路由表、路由配置 → `routes/`
+- 文案资源、slang 生成代码、语言切换 → `i18n/`
+- 图片、字体等静态资源 → `assets/`
+- 其他生成代码（如 freezed）就近放在来源文件旁
+
+## Feature 内部目录
+
+`features/<feature_name>/` 下仅允许以下子目录。有对应代码时才创建，不要预建空目录：
+
+```
+features/<feature_name>/
+  constants/      # 该 feature 私有常量
+  providers/      # 该 feature 的 Riverpod Provider / Notifier；生成的 *.g.dart 就近同目录
+  models/         # 该 feature 的数据模型
+  repositories/   # 该 feature 的数据访问
+  screens/        # 该 feature 的页面
+  widgets/        # 该 feature 私有 UI 组件
+```
+
+- 新增文件优先落入上表某一目录
+- 现有目录无法合理承载时，才新增其他子目录，并明确其职责
+- 这些技术分层目录不得提升为 `lib/` 顶层目录
+
+## Shared 内部目录
+
+`shared/` 下仅允许以下子目录。有对应代码时才创建，不要预建空目录：
+
+```
+shared/
+  providers/      # 被 2 个及以上 feature 复用的 Riverpod Provider / Notifier；生成的 *.g.dart 就近同目录
+  widgets/        # 被 2 个及以上 feature 复用的 UI 组件
+```
+
+- 新增文件优先落入上表某一目录
+- 现有目录无法合理承载时，才新增其他子目录，并明确其职责
+- 仅被单个 feature 使用的代码不得放入 `shared/`
+
+## 禁止
+
+- 以 `widgets/`、`models/`、`services/`、`repositories/`、`providers/`、`gen/` 等技术分层作为 `lib/` 顶层目录
+- 在 feature 内预建空的 `constants/`、`providers/`、`models/`、`repositories/`、`screens/`、`widgets/`
+- 在 `shared/` 内预建空的 `providers/`、`widgets/`
+- 在 feature 或 `shared/` 内使用 `controllers/`（状态与业务逻辑放 `providers/`）
+- 把某一 feature 的私有实现放到 `core/` 或 `shared/`
+- 把跨 feature 复用代码塞进某个 feature 目录
