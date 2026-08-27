@@ -1,0 +1,34 @@
+---
+description: Dart/Flutter 代码规范。页面按整体组件拆文件；展示文案走 i18n；样式走主题与常量；文件 snake_case，Widget 用业务语义命名。
+alwaysApply: true
+---
+
+# 代码规范
+
+## 页面拆分
+
+Screen 不得把超长 UI 堆在单个文件。按「整体」拆成独立 Widget 文件，再在 Screen 中组合。
+
+- 每个整体组件对应一个文件
+- 调整结构或抽取前，先搜索真实引用
+- 仅在 2 处及以上复用时再抽公共 Widget；单处使用留在所属 feature 的 `widgets/`
+
+## 展示文案
+
+禁止在 Widget、Provider、Model、平台桥接中硬编码用户可见文案。使用 slang（`t` / `context.t`）。
+
+不受此限：路由名、Channel 方法名、存储键、API 字段、资源路径、仅供调试的诊断信息。
+
+## 样式
+
+禁止在 Widget 中大量硬编码颜色、字体、间距、圆角。使用主题色板、Theme 或共享常量。
+
+## 命名
+
+- 文件：`snake_case.dart`（如 `home_screen.dart`、`record_actions.dart`、`settings_sheet.dart`）
+- Widget：PascalCase，且使用业务语义（如 `RecordControlButton`、`AudioEffectSelector`）
+- 禁止 `CustomWidget1`、`ItemWidget` 等无语义名称
+
+## 清理
+
+不保留无意义的调试日志、临时代码或废弃注释。
