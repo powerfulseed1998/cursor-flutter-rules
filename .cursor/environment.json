@@ -1,0 +1,4 @@
+{
+  "name": "Flutter Cursor Rules",
+  "install": "python3 scripts/validate_plugin.py"
+}
