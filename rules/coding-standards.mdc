@@ -21,13 +21,52 @@ Screen 不得把超长 UI 堆在单个文件。按「整体」拆成独立 Widge
 
 ## 样式
 
-禁止在 Widget 中大量硬编码颜色、字体、间距、圆角。使用主题色板、Theme 或共享常量。
+禁止在 Widget 中大量硬编码颜色、字体、间距、圆角。使用 `AppColors`、Theme 或共享常量。
 
 ## 命名
 
-- 文件：`snake_case.dart`（如 `home_screen.dart`、`record_actions.dart`、`settings_sheet.dart`）
+- 文件：`snake_case.dart`（如 `home_screen.dart`、`record_actions.dart`、`sound_effect_sheet.dart`）
 - Widget：PascalCase，且使用业务语义（如 `RecordControlButton`、`AudioEffectSelector`）
 - 禁止 `CustomWidget1`、`ItemWidget` 等无语义名称
+
+## 格式
+
+`return` 之前空一行：同一块里若 `return` 前面还有其他语句，中间必须空一行。由 `dart_code_linter` 的 `newline-before-return` 检查。
+
+```dart
+// ❌ 前面有语句却紧贴 return
+int total() {
+  final sum = items.fold(0, (a, b) => a + b);
+  return sum;
+}
+
+// ✅ 前面有语句时，return 前空一行
+int total() {
+  final sum = items.fold(0, (a, b) => a + b);
+
+  return sum;
+}
+```
+
+以下情况不要空行：
+
+- 块内只有 `return`（含 guard / 早返回）
+- 单行 `if (...) return ...;`
+- 表达式函数体 `=>`
+- 生成代码（`*.g.dart`、`*.freezed.dart` 等）不要手改
+
+```dart
+int answer() {
+  return 42;
+}
+
+if (value == null) {
+  return;
+}
+
+if (!ready) return;
+int doubled(int n) => n * 2;
+```
 
 ## 清理
 
